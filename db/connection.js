@@ -17,11 +17,11 @@ pool.on("error", (err, client) => {
 });
 
 const createUser = (request, response) => {
-	const { name, email, password } = request.body;
+	const { username, password, email, first_name, last_name } = request.body;
 
 	pool.query(
-		"INSERT INTO users (name, email) VALUES ($1, $2, $3)",
-		[name, email, password],
+		"INSERT INTO user_account (username, password, email, first_name, last_name) VALUES ($1, $2, $3, $4, $5)",
+		[username, password, email, first_name, last_name],
 		(error, results) => {
 			if (error) {
 				throw error;
@@ -34,32 +34,39 @@ const createUser = (request, response) => {
 };
 
 const getUsers = (request, response) => {
-	pool.query("SELECT * FROM users ORDER BY id ASC", (error, results) => {
-		if (error) {
-			throw error;
+	pool.query(
+		"SELECT * FROM user_account ORDER BY id ASC",
+		(error, results) => {
+			if (error) {
+				throw error;
+			}
+			response.status(200).json(results.rows);
 		}
-		response.status(200).json(results.rows);
-	});
+	);
 };
 
 const getUserById = (request, response) => {
 	const id = parseInt(request.params.id);
 
-	pool.query("SELECT * FROM users WHERE id = $1", [id], (error, results) => {
-		if (error) {
-			throw error;
+	pool.query(
+		"SELECT * FROM user_account WHERE id = $1",
+		[id],
+		(error, results) => {
+			if (error) {
+				throw error;
+			}
+			response.status(200).json(results.rows);
 		}
-		response.status(200).json(results.rows);
-	});
+	);
 };
 
 const updateUser = (request, response) => {
 	const id = parseInt(request.params.id);
-	const { name, email, password } = request.body;
+	const { username, password, email, first_name, last_name } = request.body;
 
 	pool.query(
-		"UPDATE users SET name = $1, email = $2 password = $3 WHERE id = $4",
-		[name, email, password, id],
+		"UPDATE user_account SET username = $1, password = $2 email = $3 first_name = $4 last_name = $5 WHERE id = $4",
+		[username, password, email, first_name, last_name],
 		(error, results) => {
 			if (error) {
 				throw error;
@@ -72,12 +79,16 @@ const updateUser = (request, response) => {
 const deleteUser = (request, response) => {
 	const id = parseInt(request.params.id);
 
-	pool.query("DELETE FROM users WHERE id = $1", [id], (error, results) => {
-		if (error) {
-			throw error;
+	pool.query(
+		"DELETE FROM user_account WHERE id = $1",
+		[id],
+		(error, results) => {
+			if (error) {
+				throw error;
+			}
+			response.status(200).send(`User deleted with ID: ${id}`);
 		}
-		response.status(200).send(`User deleted with ID: ${id}`);
-	});
+	);
 };
 
 module.exports = {

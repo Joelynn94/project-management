@@ -5,14 +5,14 @@ CREATE TABLE user_account (
   email VARCHAR(255),
   first_name VARCHAR(64),
   last_name VARCHAR(64),
-  is_project_manager BOOLEAN,
   registration_time TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
 CREATE TABLE employee (
   id SERIAL PRIMARY KEY,
   employee_name VARCHAR(128),
-  user_account INT
+  user_account_id INT,
+  FOREIGN KEY (user_account_id) REFERENCES user_account(id) ON DELETE CASCADE
 );
 
 CREATE TABLE team (
@@ -35,16 +35,6 @@ CREATE TABLE team_member (
   FOREIGN KEY (team_id) REFERENCES team(id) ON DELETE CASCADE
 );
 
-CREATE TABLE assigned (
-  id SERIAL PRIMARY KEY,
-  employee_id INT,
-  role_id INT,
-  task_id INT,
-  FOREIGN KEY (employee_id) REFERENCES employee(id) ON DELETE CASCADE,
-  FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE,
-  FOREIGN KEY (task_id) REFERENCES task(id) ON DELETE CASCADE
-);
-
 CREATE TYPE status AS ENUM (
   'Backlog',
   'Todo',
@@ -59,10 +49,20 @@ CREATE TABLE task (
   prority INT,
   description TEXT,
   status status,
-  planned_start_date DATE,
+  planned_start_date DATE NULL,
   planned_end_date DATE,
-  actual_start_time DATE,
-  actual_end_time DATE
+  actual_start_time DATE NULL,
+  actual_end_time DATE NULL
+);
+
+CREATE TABLE assigned (
+  id SERIAL PRIMARY KEY,
+  employee_id INT,
+  role_id INT,
+  task_id INT,
+  FOREIGN KEY (employee_id) REFERENCES employee(id) ON DELETE CASCADE,
+  FOREIGN KEY (role_id) REFERENCES role(id) ON DELETE CASCADE,
+  FOREIGN KEY (task_id) REFERENCES task(id) ON DELETE CASCADE
 );
 
 CREATE TABLE project (
@@ -70,13 +70,13 @@ CREATE TABLE project (
   task_id INT,
   status status,
   project_name VARCHAR(128),
-  project_description TEXT,
-  planned_start_date DATE,
+  project_description TEXT NULL,
+  planned_start_date DATE NULL,
   planned_end_date DATE,
-  planned_budget DECIMAL(19,2),
-  actual_start_time DATE,
-  actual_end_time DATE,
-  actual_budget DECIMAL(19,2),
+  planned_budget DECIMAL(19,2) NULL,
+  actual_start_time DATE NULL,
+  actual_end_time DATE NULL
+  actual_budget DECIMAL(19,2) NULL,
   FOREIGN KEY (task_id) REFERENCES task(id) ON DELETE CASCADE
 );
 
